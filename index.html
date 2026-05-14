@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personal Expense Tracker v2</title>
+
+  <title>Personal Expense Tracker</title>
+
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -83,6 +85,7 @@
       <button onclick="openModal('addMoneyModal')">+ Add Money</button>
       <button onclick="openModal('walletModal')">+ Wallet</button>
       <button onclick="openModal('adjustWalletModal')">Balance Correction</button>
+      <button onclick="openModal('investmentModal')">+ Investment</button>
     </section>
 
     <section class="content-grid">
@@ -91,7 +94,10 @@
           <h2>Wallets / Accounts</h2>
           <p>Online and offline accounts</p>
         </div>
-        <div id="walletList" class="wallet-list"></div>
+
+        <div id="walletList" class="wallet-list">
+          <p class="subtext">Loading wallets...</p>
+        </div>
       </div>
 
       <div class="glass-card section-card">
@@ -99,7 +105,21 @@
           <h2>Recent Expenses</h2>
           <p>Last 10 transactions</p>
         </div>
-        <div id="expenseList" class="transaction-list"></div>
+
+        <div id="expenseList" class="transaction-list">
+          <p class="subtext">Loading expenses...</p>
+        </div>
+      </div>
+
+      <div class="glass-card section-card">
+        <div class="section-title">
+          <h2>Active Investments</h2>
+          <p>Current investment records</p>
+        </div>
+
+        <div id="investmentList" class="transaction-list">
+          <p class="subtext">Loading investments...</p>
+        </div>
       </div>
     </section>
   </main>
@@ -132,27 +152,51 @@
         </select>
 
         <label>Description</label>
-        <input type="text" id="expenseDescription" placeholder="Example: Lunch, Jeep, Coffee" />
+        <input
+          type="text"
+          id="expenseDescription"
+          placeholder="Example: Lunch, Jeep, Coffee"
+        />
 
         <label>Amount</label>
-        <input type="number" id="expenseAmount" required min="0" step="0.01" />
+        <input
+          type="number"
+          id="expenseAmount"
+          required
+          min="0"
+          step="0.01"
+        />
 
         <label>Tax Amount</label>
-        <input type="number" id="expenseTax" min="0" step="0.01" value="0" />
+        <input
+          type="number"
+          id="expenseTax"
+          min="0"
+          step="0.01"
+          value="0"
+        />
 
         <label>From Wallet</label>
-        <select id="expenseWallet" required></select>
+        <select id="expenseWallet" required>
+          <option value="">Select wallet</option>
+        </select>
 
         <div class="toggle-row">
           <span>Deduct from daily budget?</span>
+
           <label class="switch">
-            <input type="checkbox" id="deductBudget" onchange="toggleBudgetType()" />
+            <input
+              type="checkbox"
+              id="deductBudget"
+              onchange="toggleBudgetType()"
+            />
             <span class="slider"></span>
           </label>
         </div>
 
         <div id="budgetTypeWrap" class="hidden">
           <label>Budget Type</label>
+
           <select id="budgetType">
             <option value="">Select budget type</option>
             <option>Transportation</option>
@@ -160,7 +204,9 @@
           </select>
         </div>
 
-        <button class="submit-btn" type="submit">Save Expense</button>
+        <button class="submit-btn" type="submit">
+          Save Expense
+        </button>
       </form>
     </div>
   </div>
@@ -178,18 +224,34 @@
         <input type="date" id="transferDate" />
 
         <label>From Wallet</label>
-        <select id="fromWallet" required></select>
+        <select id="fromWallet" required>
+          <option value="">Select wallet</option>
+        </select>
 
         <label>To Wallet</label>
-        <select id="toWallet" required></select>
+        <select id="toWallet" required>
+          <option value="">Select wallet</option>
+        </select>
 
         <label>Amount</label>
-        <input type="number" id="transferAmount" required min="0" step="0.01" />
+        <input
+          type="number"
+          id="transferAmount"
+          required
+          min="0"
+          step="0.01"
+        />
 
         <label>Notes</label>
-        <input type="text" id="transferNotes" placeholder="Example: Transfer to savings" />
+        <input
+          type="text"
+          id="transferNotes"
+          placeholder="Example: Transfer to savings"
+        />
 
-        <button class="submit-btn" type="submit">Transfer</button>
+        <button class="submit-btn" type="submit">
+          Transfer
+        </button>
       </form>
     </div>
   </div>
@@ -207,18 +269,32 @@
         <input type="date" id="addMoneyDate" />
 
         <label>Wallet</label>
-        <select id="addMoneyWallet" required></select>
+        <select id="addMoneyWallet" required>
+          <option value="">Select wallet</option>
+        </select>
 
         <label>Amount</label>
-        <input type="number" id="addMoneyAmount" required min="0" step="0.01" />
+        <input
+          type="number"
+          id="addMoneyAmount"
+          required
+          min="0"
+          step="0.01"
+        />
 
         <label>Source</label>
-        <input type="text" id="addMoneySource" placeholder="Example: Salary, allowance, freelance" />
+        <input
+          type="text"
+          id="addMoneySource"
+          placeholder="Example: Salary, allowance, freelance"
+        />
 
         <label>Notes</label>
         <input type="text" id="addMoneyNotes" />
 
-        <button class="submit-btn" type="submit">Add Money</button>
+        <button class="submit-btn" type="submit">
+          Add Money
+        </button>
       </form>
     </div>
   </div>
@@ -233,7 +309,12 @@
 
       <form onsubmit="submitWallet(event)">
         <label>Wallet Name</label>
-        <input type="text" id="walletName" required placeholder="Example: Cash, GCash, BPI" />
+        <input
+          type="text"
+          id="walletName"
+          required
+          placeholder="Example: Cash, GCash, BPI"
+        />
 
         <label>Wallet Type</label>
         <select id="walletType" required>
@@ -246,12 +327,20 @@
         </select>
 
         <label>Initial Balance</label>
-        <input type="number" id="walletBalance" min="0" step="0.01" value="0" />
+        <input
+          type="number"
+          id="walletBalance"
+          min="0"
+          step="0.01"
+          value="0"
+        />
 
         <label>Notes</label>
         <input type="text" id="walletNotes" />
 
-        <button class="submit-btn" type="submit">Add Wallet</button>
+        <button class="submit-btn" type="submit">
+          Add Wallet
+        </button>
       </form>
     </div>
   </div>
@@ -266,15 +355,72 @@
 
       <form onsubmit="submitBalanceCorrection(event)">
         <label>Wallet</label>
-        <select id="adjustWallet" required></select>
+        <select id="adjustWallet" required>
+          <option value="">Select wallet</option>
+        </select>
 
         <label>Actual Balance</label>
-        <input type="number" id="adjustAmount" required min="0" step="0.01" />
+        <input
+          type="number"
+          id="adjustAmount"
+          required
+          min="0"
+          step="0.01"
+        />
 
         <label>Reason</label>
-        <input type="text" id="adjustReason" placeholder="Example: Actual counted cash" />
+        <input
+          type="text"
+          id="adjustReason"
+          placeholder="Example: Actual counted cash"
+        />
 
-        <button class="submit-btn" type="submit">Update Balance</button>
+        <button class="submit-btn" type="submit">
+          Update Balance
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- INVESTMENT MODAL -->
+  <div class="modal-overlay" id="investmentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Investment</h2>
+        <button onclick="closeModal('investmentModal')">×</button>
+      </div>
+
+      <form onsubmit="submitInvestment(event)">
+        <label>Date</label>
+        <input type="date" id="investmentDate" />
+
+        <label>Platform</label>
+        <input
+          type="text"
+          id="investmentPlatform"
+          required
+          placeholder="Example: GoTrade, GCash, Maya, MP2"
+        />
+
+        <label>Description</label>
+        <input
+          type="text"
+          id="investmentDescription"
+          placeholder="Example: Current investment value"
+        />
+
+        <label>Amount</label>
+        <input
+          type="number"
+          id="investmentAmount"
+          required
+          min="0"
+          step="0.01"
+        />
+
+        <button class="submit-btn" type="submit">
+          Save Investment
+        </button>
       </form>
     </div>
   </div>
