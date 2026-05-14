@@ -28,10 +28,7 @@ function peso(value) {
 async function apiRequest(action, payload = {}) {
   const response = await fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action,
-      payload
-    })
+    body: JSON.stringify({ action, payload })
   });
 
   return await response.json();
@@ -44,6 +41,12 @@ async function loadDashboard() {
 
 function renderDashboard(data) {
   dashboardData = data;
+
+  document.getElementById("totalMoneyOwned").textContent =
+    peso(data.stats.totalMoneyOwned);
+
+  document.getElementById("totalMoneyOwnedSub").textContent =
+    `Wallets: ${peso(data.stats.totalWalletBalance)} + Investments: ${peso(data.stats.totalInvested)}`;
 
   document.getElementById("todayRemaining").textContent =
     peso(data.stats.todayRemaining);
@@ -68,12 +71,6 @@ function renderDashboard(data) {
 
   document.getElementById("weekSpent").textContent =
     `Spent this week: ${peso(data.stats.weekSpent)} / ${peso(data.stats.weeklyBudget)}`;
-
-  document.getElementById("monthRemaining").textContent =
-    peso(data.stats.monthRemaining);
-
-  document.getElementById("monthSpent").textContent =
-    `Spent this month: ${peso(data.stats.monthSpent)} / ${peso(data.stats.monthlyBudget)}`;
 
   document.getElementById("budgetDaysThisMonth").textContent =
     `${data.stats.budgetDaysThisMonth} days`;
@@ -126,11 +123,14 @@ function renderWalletDropdowns(wallets) {
     "expenseWallet",
     "fromWallet",
     "toWallet",
-    "addMoneyWallet"
+    "addMoneyWallet",
+    "adjustWallet"
   ];
 
   dropdownIds.forEach(id => {
     const select = document.getElementById(id);
+    if (!select) return;
+
     select.innerHTML = `<option value="">Select wallet</option>`;
 
     wallets.forEach(wallet => {
@@ -210,8 +210,8 @@ async function submitExpense(event) {
   };
 
   const updatedData = await apiRequest("addExpense", data);
-
   renderDashboard(updatedData);
+
   event.target.reset();
   setDefaultDates();
   toggleBudgetType();
@@ -238,8 +238,8 @@ async function submitTransfer(event) {
   };
 
   const updatedData = await apiRequest("transferWallet", data);
-
   renderDashboard(updatedData);
+
   event.target.reset();
   setDefaultDates();
   closeModal("transferModal");
@@ -257,8 +257,8 @@ async function submitAddMoney(event) {
   };
 
   const updatedData = await apiRequest("addMoney", data);
-
   renderDashboard(updatedData);
+
   event.target.reset();
   setDefaultDates();
   closeModal("addMoneyModal");
@@ -275,20 +275,32 @@ async function submitWallet(event) {
   };
 
   const updatedData = await apiRequest("addWallet", data);
-
   renderDashboard(updatedData);
+
   event.target.reset();
   closeModal("walletModal");
 }
 
+async function submitBalanceCorrection(event) {
+  event.preventDefault();
+
+  const data = {
+    walletId: document.getElementById("adjustWallet").value,
+    actualBalance: Number(document.getElementById("adjustAmount").value),
+    reason: document.getElementById("adjustReason").value
+  };
+
+  const updatedData = await apiRequest("adjustWalletBalance", data);
+  renderDashboard(updatedData);
+
+  event.target.reset();
+  closeModal("adjustWalletModal");
+}
+
 async function deleteWallet(walletId) {
   const confirmed = confirm("Delete this wallet?");
-
   if (!confirmed) return;
 
-  const updatedData = await apiRequest("deleteWallet", {
-    walletId
-  });
-
+  const updatedData = await apiRequest("deleteWallet", { walletId });
   renderDashboard(updatedData);
 }
