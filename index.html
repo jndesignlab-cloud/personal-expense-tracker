@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Personal Expense Tracker</title>
-
+  <title>Personal Expense Tracker v2</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -17,7 +15,7 @@
       <div>
         <p class="eyebrow">Personal Finance Dashboard</p>
         <h1>Expenses Tracker</h1>
-        <p class="subtext">₱350 transpo + ₱100 food daily budget</p>
+        <p class="subtext">Fresh start budget: ₱350 transpo + ₱100 food</p>
       </div>
 
       <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
@@ -25,8 +23,14 @@
 
     <section class="stats-grid">
       <div class="glass-card hero-card">
+        <span class="label">Total Money Owned</span>
+        <h2 id="totalMoneyOwned">₱0.00</h2>
+        <p id="totalMoneyOwnedSub">Wallets + Investments</p>
+      </div>
+
+      <div class="glass-card">
         <span class="label">Remaining Today</span>
-        <h2 id="todayRemaining">₱0.00</h2>
+        <h3 id="todayRemaining">₱0.00</h3>
         <p id="todaySpent">Spent today: ₱0.00</p>
       </div>
 
@@ -45,13 +49,7 @@
       <div class="glass-card">
         <span class="label">Weekly Remaining</span>
         <h3 id="weekRemaining">₱0.00</h3>
-        <p id="weekSpent">Spent this week: ₱0.00</p>
-      </div>
-
-      <div class="glass-card">
-        <span class="label">Monthly Remaining</span>
-        <h3 id="monthRemaining">₱0.00</h3>
-        <p id="monthSpent">Dynamic monthly budget</p>
+        <p id="weekSpent">Fresh start week</p>
       </div>
 
       <div class="glass-card">
@@ -84,6 +82,7 @@
       <button onclick="openModal('transferModal')">Transfer</button>
       <button onclick="openModal('addMoneyModal')">+ Add Money</button>
       <button onclick="openModal('walletModal')">+ Wallet</button>
+      <button onclick="openModal('adjustWalletModal')">Balance Correction</button>
     </section>
 
     <section class="content-grid">
@@ -92,10 +91,7 @@
           <h2>Wallets / Accounts</h2>
           <p>Online and offline accounts</p>
         </div>
-
-        <div id="walletList" class="wallet-list">
-          <p class="subtext">Loading wallets...</p>
-        </div>
+        <div id="walletList" class="wallet-list"></div>
       </div>
 
       <div class="glass-card section-card">
@@ -103,15 +99,12 @@
           <h2>Recent Expenses</h2>
           <p>Last 10 transactions</p>
         </div>
-
-        <div id="expenseList" class="transaction-list">
-          <p class="subtext">Loading expenses...</p>
-        </div>
+        <div id="expenseList" class="transaction-list"></div>
       </div>
     </section>
   </main>
 
-  <!-- ADD EXPENSE MODAL -->
+  <!-- EXPENSE MODAL -->
   <div class="modal-overlay" id="expenseModal">
     <div class="modal">
       <div class="modal-header">
@@ -148,13 +141,10 @@
         <input type="number" id="expenseTax" min="0" step="0.01" value="0" />
 
         <label>From Wallet</label>
-        <select id="expenseWallet" required>
-          <option value="">Select wallet</option>
-        </select>
+        <select id="expenseWallet" required></select>
 
         <div class="toggle-row">
           <span>Deduct from daily budget?</span>
-
           <label class="switch">
             <input type="checkbox" id="deductBudget" onchange="toggleBudgetType()" />
             <span class="slider"></span>
@@ -188,14 +178,10 @@
         <input type="date" id="transferDate" />
 
         <label>From Wallet</label>
-        <select id="fromWallet" required>
-          <option value="">Select wallet</option>
-        </select>
+        <select id="fromWallet" required></select>
 
         <label>To Wallet</label>
-        <select id="toWallet" required>
-          <option value="">Select wallet</option>
-        </select>
+        <select id="toWallet" required></select>
 
         <label>Amount</label>
         <input type="number" id="transferAmount" required min="0" step="0.01" />
@@ -221,9 +207,7 @@
         <input type="date" id="addMoneyDate" />
 
         <label>Wallet</label>
-        <select id="addMoneyWallet" required>
-          <option value="">Select wallet</option>
-        </select>
+        <select id="addMoneyWallet" required></select>
 
         <label>Amount</label>
         <input type="number" id="addMoneyAmount" required min="0" step="0.01" />
@@ -268,6 +252,29 @@
         <input type="text" id="walletNotes" />
 
         <button class="submit-btn" type="submit">Add Wallet</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- BALANCE CORRECTION MODAL -->
+  <div class="modal-overlay" id="adjustWalletModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Wallet Balance Correction</h2>
+        <button onclick="closeModal('adjustWalletModal')">×</button>
+      </div>
+
+      <form onsubmit="submitBalanceCorrection(event)">
+        <label>Wallet</label>
+        <select id="adjustWallet" required></select>
+
+        <label>Actual Balance</label>
+        <input type="number" id="adjustAmount" required min="0" step="0.01" />
+
+        <label>Reason</label>
+        <input type="text" id="adjustReason" placeholder="Example: Actual counted cash" />
+
+        <button class="submit-btn" type="submit">Update Balance</button>
       </form>
     </div>
   </div>
