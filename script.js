@@ -1,6 +1,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbx-uxb0M6FAePCy1TAddnPTlrFiGXO43dw78famDaQ5YmvJsHC2S2IISOlnQZP18Wg/exec";
 
 let dashboardData = null;
+let moneyChart = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   setDefaultDates();
@@ -111,57 +112,6 @@ function renderDashboard(data) {
     `Spent today: ${peso(data.stats.todaySpent)} / ${peso(data.stats.dailyBudget)}`;
 
   /* ======================
-     TRANSPORT
-  ====================== */
-
-  document.getElementById(
-    "transportRemaining"
-  ).textContent =
-    peso(data.stats.todayTransportRemaining);
-
-  document.getElementById(
-    "transportSpent"
-  ).textContent =
-    `Spent: ${peso(data.stats.todayTransportSpent)} / ${peso(data.settings.dailyTransport)}`;
-
-  /* ======================
-     FOOD
-  ====================== */
-
-  document.getElementById(
-    "foodRemaining"
-  ).textContent =
-    peso(data.stats.todayFoodRemaining);
-
-  document.getElementById(
-    "foodSpent"
-  ).textContent =
-    `Spent: ${peso(data.stats.todayFoodSpent)} / ${peso(data.settings.dailyFood)}`;
-
-  /* ======================
-     WEEKLY
-  ====================== */
-
-  document.getElementById(
-    "weekRemaining"
-  ).textContent =
-    peso(data.stats.weekRemaining);
-
-  document.getElementById(
-    "weekSpent"
-  ).textContent =
-    `Spent this week: ${peso(data.stats.weekSpent)} / ${peso(data.stats.weeklyBudget)}`;
-
-  /* ======================
-     MONTH DAYS
-  ====================== */
-
-  document.getElementById(
-    "budgetDaysThisMonth"
-  ).textContent =
-    `${data.stats.budgetDaysThisMonth} days`;
-
-  /* ======================
      WALLET TOTAL
   ====================== */
 
@@ -199,6 +149,90 @@ function renderDashboard(data) {
   renderExpenses(data.recentExpenses);
 
   renderInvestments(data.investments);
+
+  /* ======================
+     PIE CHART
+  ====================== */
+
+  renderMoneyChart(
+    data.stats.totalWalletBalance,
+    data.stats.totalInvested
+  );
+
+}
+
+/* =========================================
+   PIE CHART
+========================================= */
+
+function renderMoneyChart(wallets, investments) {
+
+  const ctx =
+    document.getElementById(
+      "moneyChart"
+    );
+
+  if (!ctx) return;
+
+  if (moneyChart) {
+    moneyChart.destroy();
+  }
+
+  moneyChart = new Chart(ctx, {
+
+    type: "doughnut",
+
+    data: {
+
+      labels: [
+        "Wallets",
+        "Investments"
+      ],
+
+      datasets: [{
+        data: [
+          wallets,
+          investments
+        ],
+
+        backgroundColor: [
+          "#2f80ff",
+          "#14b8a6"
+        ],
+
+        borderWidth: 0,
+        borderRadius: 10
+      }]
+
+    },
+
+    options: {
+
+      responsive: true,
+
+      cutout: "72%",
+
+      plugins: {
+
+        legend: {
+
+          position: "bottom",
+
+          labels: {
+            color: "white",
+            padding: 20,
+            font: {
+              family: "Inter"
+            }
+          }
+
+        }
+
+      }
+
+    }
+
+  });
 
 }
 
