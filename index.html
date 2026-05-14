@@ -24,40 +24,31 @@
     </header>
 
     <section class="stats-grid">
-      <div class="glass-card hero-card">
-        <span class="label">Total Money Owned</span>
-        <h2 id="totalMoneyOwned">₱0.00</h2>
-        <p id="totalMoneyOwnedSub">Wallets + Investments</p>
+
+      <div class="glass-card hero-card hero-wide">
+        <div class="hero-split">
+
+          <div class="hero-left">
+            <span class="label">Total Money Owned</span>
+
+            <h2 id="totalMoneyOwned">₱0.00</h2>
+
+            <p id="totalMoneyOwnedSub">
+              Wallets + Investments
+            </p>
+          </div>
+
+          <div class="hero-right">
+            <canvas id="moneyChart"></canvas>
+          </div>
+
+        </div>
       </div>
 
       <div class="glass-card">
         <span class="label">Remaining Today</span>
         <h3 id="todayRemaining">₱0.00</h3>
         <p id="todaySpent">Spent today: ₱0.00</p>
-      </div>
-
-      <div class="glass-card">
-        <span class="label">Transportation</span>
-        <h3 id="transportRemaining">₱0.00</h3>
-        <p id="transportSpent">Spent: ₱0.00 / ₱350</p>
-      </div>
-
-      <div class="glass-card">
-        <span class="label">Food</span>
-        <h3 id="foodRemaining">₱0.00</h3>
-        <p id="foodSpent">Spent: ₱0.00 / ₱100</p>
-      </div>
-
-      <div class="glass-card">
-        <span class="label">Weekly Remaining</span>
-        <h3 id="weekRemaining">₱0.00</h3>
-        <p id="weekSpent">Fresh start week</p>
-      </div>
-
-      <div class="glass-card">
-        <span class="label">Monthly Budget Days</span>
-        <h3 id="budgetDaysThisMonth">0 days</h3>
-        <p>Based on 4 budget days per week</p>
       </div>
 
       <div class="glass-card">
@@ -77,6 +68,7 @@
         <h3 id="debtReceivable">₱0.00 / ₱0.00</h3>
         <p>Debts owed / Money owed to you</p>
       </div>
+
     </section>
 
     <section class="action-bar">
@@ -425,6 +417,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
