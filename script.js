@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbx-uxb0M6FAePCy1TAddnPTlrFiGXO43dw78famDaQ5YmvJsHC2S2IISOlnQZP18Wg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxcvPZvoErwwA6pWdCzmwNaH-9I2FkgaGBGmlijmQjXr-19XoegAd1R37fJP3ZDTQmg/exec";
 
 let dashboardData = null;
 let moneyChart = null;
