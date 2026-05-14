@@ -7,14 +7,30 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDashboard();
 });
 
+/* =========================================
+   DEFAULT DATES
+========================================= */
+
 function setDefaultDates() {
   const today = new Date().toISOString().split("T")[0];
 
-  ["expenseDate", "transferDate", "addMoneyDate"].forEach(id => {
+  [
+    "expenseDate",
+    "transferDate",
+    "addMoneyDate",
+    "investmentDate"
+  ].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = today;
+
+    if (el) {
+      el.value = today;
+    }
   });
 }
+
+/* =========================================
+   FORMAT
+========================================= */
 
 function peso(value) {
   const amount = Number(value) || 0;
@@ -25,134 +41,299 @@ function peso(value) {
   });
 }
 
+/* =========================================
+   API REQUEST
+========================================= */
+
 async function apiRequest(action, payload = {}) {
+
   const response = await fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ action, payload })
+
+    body: JSON.stringify({
+      action,
+      payload
+    })
   });
 
   return await response.json();
 }
 
+/* =========================================
+   LOAD DASHBOARD
+========================================= */
+
 async function loadDashboard() {
-  const data = await apiRequest("getDashboardData");
+
+  const data =
+    await apiRequest(
+      "getDashboardData"
+    );
+
   renderDashboard(data);
+
 }
+
+/* =========================================
+   RENDER DASHBOARD
+========================================= */
 
 function renderDashboard(data) {
+
   dashboardData = data;
 
-  document.getElementById("totalMoneyOwned").textContent =
+  /* ======================
+     TOTAL MONEY
+  ====================== */
+
+  document.getElementById(
+    "totalMoneyOwned"
+  ).textContent =
     peso(data.stats.totalMoneyOwned);
 
-  document.getElementById("totalMoneyOwnedSub").textContent =
+  document.getElementById(
+    "totalMoneyOwnedSub"
+  ).textContent =
     `Wallets: ${peso(data.stats.totalWalletBalance)} + Investments: ${peso(data.stats.totalInvested)}`;
 
-  document.getElementById("todayRemaining").textContent =
+  /* ======================
+     DAILY
+  ====================== */
+
+  document.getElementById(
+    "todayRemaining"
+  ).textContent =
     peso(data.stats.todayRemaining);
 
-  document.getElementById("todaySpent").textContent =
+  document.getElementById(
+    "todaySpent"
+  ).textContent =
     `Spent today: ${peso(data.stats.todaySpent)} / ${peso(data.stats.dailyBudget)}`;
 
-  document.getElementById("transportRemaining").textContent =
+  /* ======================
+     TRANSPORT
+  ====================== */
+
+  document.getElementById(
+    "transportRemaining"
+  ).textContent =
     peso(data.stats.todayTransportRemaining);
 
-  document.getElementById("transportSpent").textContent =
+  document.getElementById(
+    "transportSpent"
+  ).textContent =
     `Spent: ${peso(data.stats.todayTransportSpent)} / ${peso(data.settings.dailyTransport)}`;
 
-  document.getElementById("foodRemaining").textContent =
+  /* ======================
+     FOOD
+  ====================== */
+
+  document.getElementById(
+    "foodRemaining"
+  ).textContent =
     peso(data.stats.todayFoodRemaining);
 
-  document.getElementById("foodSpent").textContent =
+  document.getElementById(
+    "foodSpent"
+  ).textContent =
     `Spent: ${peso(data.stats.todayFoodSpent)} / ${peso(data.settings.dailyFood)}`;
 
-  document.getElementById("weekRemaining").textContent =
+  /* ======================
+     WEEKLY
+  ====================== */
+
+  document.getElementById(
+    "weekRemaining"
+  ).textContent =
     peso(data.stats.weekRemaining);
 
-  document.getElementById("weekSpent").textContent =
+  document.getElementById(
+    "weekSpent"
+  ).textContent =
     `Spent this week: ${peso(data.stats.weekSpent)} / ${peso(data.stats.weeklyBudget)}`;
 
-  document.getElementById("budgetDaysThisMonth").textContent =
+  /* ======================
+     MONTH DAYS
+  ====================== */
+
+  document.getElementById(
+    "budgetDaysThisMonth"
+  ).textContent =
     `${data.stats.budgetDaysThisMonth} days`;
 
-  document.getElementById("totalWalletBalance").textContent =
+  /* ======================
+     WALLET TOTAL
+  ====================== */
+
+  document.getElementById(
+    "totalWalletBalance"
+  ).textContent =
     peso(data.stats.totalWalletBalance);
 
-  document.getElementById("totalInvested").textContent =
+  /* ======================
+     INVESTMENTS
+  ====================== */
+
+  document.getElementById(
+    "totalInvested"
+  ).textContent =
     peso(data.stats.totalInvested);
 
-  document.getElementById("debtReceivable").textContent =
+  /* ======================
+     DEBTS
+  ====================== */
+
+  document.getElementById(
+    "debtReceivable"
+  ).textContent =
     `${peso(data.stats.totalDebts)} / ${peso(data.stats.totalReceivables)}`;
 
+  /* ======================
+     TABLES
+  ====================== */
+
   renderWallets(data.wallets);
+
   renderWalletDropdowns(data.wallets);
+
   renderExpenses(data.recentExpenses);
+
+  renderInvestments(data.investments);
+
 }
 
+/* =========================================
+   WALLET TABLE
+========================================= */
+
 function renderWallets(wallets) {
-  const container = document.getElementById("walletList");
+
+  const container =
+    document.getElementById(
+      "walletList"
+    );
+
   container.innerHTML = "";
 
   if (!wallets.length) {
-    container.innerHTML = `<p class="subtext">No wallets yet.</p>`;
+
+    container.innerHTML =
+      `<p class="subtext">No wallets yet.</p>`;
+
     return;
+
   }
 
   wallets.forEach(wallet => {
-    const item = document.createElement("div");
+
+    const item =
+      document.createElement("div");
+
     item.className = "wallet-item";
 
     item.innerHTML = `
       <div>
         <strong>${wallet.name}</strong>
-        <span>${wallet.type}${wallet.notes ? " · " + wallet.notes : ""}</span>
+
+        <span>
+          ${wallet.type}
+          ${wallet.notes ? " · " + wallet.notes : ""}
+        </span>
       </div>
 
       <div class="wallet-actions">
-        <div class="amount">${peso(wallet.balance)}</div>
-        <button class="delete-btn" onclick="deleteWallet('${wallet.id}')">Delete</button>
+
+        <div class="amount">
+          ${peso(wallet.balance)}
+        </div>
+
+        <button
+          class="delete-btn"
+          onclick="deleteWallet('${wallet.id}')"
+        >
+          Delete
+        </button>
+
       </div>
     `;
 
     container.appendChild(item);
+
   });
+
 }
 
+/* =========================================
+   WALLET DROPDOWNS
+========================================= */
+
 function renderWalletDropdowns(wallets) {
+
   const dropdownIds = [
+
     "expenseWallet",
     "fromWallet",
     "toWallet",
     "addMoneyWallet",
     "adjustWallet"
+
   ];
 
   dropdownIds.forEach(id => {
-    const select = document.getElementById(id);
+
+    const select =
+      document.getElementById(id);
+
     if (!select) return;
 
-    select.innerHTML = `<option value="">Select wallet</option>`;
+    select.innerHTML =
+      `<option value="">Select wallet</option>`;
 
     wallets.forEach(wallet => {
-      const option = document.createElement("option");
+
+      const option =
+        document.createElement("option");
+
       option.value = wallet.id;
-      option.textContent = `${wallet.name} — ${peso(wallet.balance)}`;
+
+      option.textContent =
+        `${wallet.name} — ${peso(wallet.balance)}`;
+
       select.appendChild(option);
+
     });
+
   });
+
 }
 
+/* =========================================
+   EXPENSE TABLE
+========================================= */
+
 function renderExpenses(expenses) {
-  const container = document.getElementById("expenseList");
+
+  const container =
+    document.getElementById(
+      "expenseList"
+    );
+
   container.innerHTML = "";
 
   if (!expenses.length) {
-    container.innerHTML = `<p class="subtext">No expenses yet.</p>`;
+
+    container.innerHTML =
+      `<p class="subtext">No expenses yet.</p>`;
+
     return;
+
   }
 
   expenses.forEach(exp => {
-    const item = document.createElement("div");
+
+    const item =
+      document.createElement("div");
+
     item.className = "transaction-item";
 
     const budgetTag =
@@ -162,145 +343,499 @@ function renderExpenses(expenses) {
 
     item.innerHTML = `
       <div>
+
         <strong>${exp.category}</strong>
-        <span>${exp.description || "No description"} · ${exp.walletName} · ${budgetTag}</span>
+
+        <span>
+          ${exp.description || "No description"}
+          ·
+          ${exp.walletName}
+          ·
+          ${budgetTag}
+        </span>
+
       </div>
 
-      <div class="amount">-${peso(exp.totalAmount)}</div>
+      <div class="amount">
+        -${peso(exp.totalAmount)}
+      </div>
     `;
 
     container.appendChild(item);
+
   });
+
 }
 
+/* =========================================
+   INVESTMENTS TABLE
+========================================= */
+
+function renderInvestments(investments) {
+
+  const container =
+    document.getElementById(
+      "investmentList"
+    );
+
+  container.innerHTML = "";
+
+  if (!investments || !investments.length) {
+
+    container.innerHTML =
+      `<p class="subtext">No investments yet.</p>`;
+
+    return;
+
+  }
+
+  investments.forEach(inv => {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "transaction-item";
+
+    item.innerHTML = `
+      <div>
+
+        <strong>${inv.platform}</strong>
+
+        <span>
+          ${inv.description || "No description"}
+        </span>
+
+      </div>
+
+      <div class="amount">
+        ${peso(inv.amount)}
+      </div>
+    `;
+
+    container.appendChild(item);
+
+  });
+
+}
+
+/* =========================================
+   MODALS
+========================================= */
+
 function openModal(id) {
-  document.getElementById(id).classList.add("active");
+
+  document
+    .getElementById(id)
+    .classList
+    .add("active");
+
 }
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove("active");
+
+  document
+    .getElementById(id)
+    .classList
+    .remove("active");
+
 }
+
+/* =========================================
+   TOGGLE BUDGET
+========================================= */
 
 function toggleBudgetType() {
-  const checked = document.getElementById("deductBudget").checked;
-  const wrap = document.getElementById("budgetTypeWrap");
+
+  const checked =
+    document.getElementById(
+      "deductBudget"
+    ).checked;
+
+  const wrap =
+    document.getElementById(
+      "budgetTypeWrap"
+    );
 
   if (checked) {
+
     wrap.classList.remove("hidden");
-    document.getElementById("budgetType").required = true;
+
+    document
+      .getElementById("budgetType")
+      .required = true;
+
   } else {
+
     wrap.classList.add("hidden");
-    document.getElementById("budgetType").required = false;
-    document.getElementById("budgetType").value = "";
+
+    document
+      .getElementById("budgetType")
+      .required = false;
+
+    document
+      .getElementById("budgetType")
+      .value = "";
+
   }
+
 }
+
+/* =========================================
+   SUBMIT EXPENSE
+========================================= */
 
 async function submitExpense(event) {
+
   event.preventDefault();
 
   const data = {
-    date: document.getElementById("expenseDate").value,
-    category: document.getElementById("expenseCategory").value,
-    description: document.getElementById("expenseDescription").value,
-    amount: Number(document.getElementById("expenseAmount").value),
-    taxAmount: Number(document.getElementById("expenseTax").value) || 0,
-    walletId: document.getElementById("expenseWallet").value,
-    deductBudget: document.getElementById("deductBudget").checked,
-    budgetType: document.getElementById("budgetType").value
+
+    date:
+      document.getElementById(
+        "expenseDate"
+      ).value,
+
+    category:
+      document.getElementById(
+        "expenseCategory"
+      ).value,
+
+    description:
+      document.getElementById(
+        "expenseDescription"
+      ).value,
+
+    amount:
+      Number(
+        document.getElementById(
+          "expenseAmount"
+        ).value
+      ),
+
+    taxAmount:
+      Number(
+        document.getElementById(
+          "expenseTax"
+        ).value
+      ) || 0,
+
+    walletId:
+      document.getElementById(
+        "expenseWallet"
+      ).value,
+
+    deductBudget:
+      document.getElementById(
+        "deductBudget"
+      ).checked,
+
+    budgetType:
+      document.getElementById(
+        "budgetType"
+      ).value
+
   };
 
-  const updatedData = await apiRequest("addExpense", data);
+  const updatedData =
+    await apiRequest(
+      "addExpense",
+      data
+    );
+
   renderDashboard(updatedData);
 
   event.target.reset();
+
   setDefaultDates();
+
   toggleBudgetType();
+
   closeModal("expenseModal");
+
 }
 
+/* =========================================
+   SUBMIT TRANSFER
+========================================= */
+
 async function submitTransfer(event) {
+
   event.preventDefault();
 
-  const fromWalletId = document.getElementById("fromWallet").value;
-  const toWalletId = document.getElementById("toWallet").value;
+  const fromWalletId =
+    document.getElementById(
+      "fromWallet"
+    ).value;
+
+  const toWalletId =
+    document.getElementById(
+      "toWallet"
+    ).value;
 
   if (fromWalletId === toWalletId) {
-    alert("From wallet and To wallet cannot be the same.");
+
+    alert(
+      "From wallet and To wallet cannot be the same."
+    );
+
     return;
+
   }
 
   const data = {
-    date: document.getElementById("transferDate").value,
+
+    date:
+      document.getElementById(
+        "transferDate"
+      ).value,
+
     fromWalletId,
+
     toWalletId,
-    amount: Number(document.getElementById("transferAmount").value),
-    notes: document.getElementById("transferNotes").value
+
+    amount:
+      Number(
+        document.getElementById(
+          "transferAmount"
+        ).value
+      ),
+
+    notes:
+      document.getElementById(
+        "transferNotes"
+      ).value
+
   };
 
-  const updatedData = await apiRequest("transferWallet", data);
+  const updatedData =
+    await apiRequest(
+      "transferWallet",
+      data
+    );
+
   renderDashboard(updatedData);
 
   event.target.reset();
+
   setDefaultDates();
+
   closeModal("transferModal");
+
 }
+
+/* =========================================
+   ADD MONEY
+========================================= */
 
 async function submitAddMoney(event) {
+
   event.preventDefault();
 
   const data = {
-    date: document.getElementById("addMoneyDate").value,
-    walletId: document.getElementById("addMoneyWallet").value,
-    amount: Number(document.getElementById("addMoneyAmount").value),
-    source: document.getElementById("addMoneySource").value,
-    notes: document.getElementById("addMoneyNotes").value
+
+    date:
+      document.getElementById(
+        "addMoneyDate"
+      ).value,
+
+    walletId:
+      document.getElementById(
+        "addMoneyWallet"
+      ).value,
+
+    amount:
+      Number(
+        document.getElementById(
+          "addMoneyAmount"
+        ).value
+      ),
+
+    source:
+      document.getElementById(
+        "addMoneySource"
+      ).value,
+
+    notes:
+      document.getElementById(
+        "addMoneyNotes"
+      ).value
+
   };
 
-  const updatedData = await apiRequest("addMoney", data);
+  const updatedData =
+    await apiRequest(
+      "addMoney",
+      data
+    );
+
   renderDashboard(updatedData);
 
   event.target.reset();
+
   setDefaultDates();
+
   closeModal("addMoneyModal");
+
 }
+
+/* =========================================
+   ADD WALLET
+========================================= */
 
 async function submitWallet(event) {
+
   event.preventDefault();
 
   const data = {
-    walletName: document.getElementById("walletName").value,
-    walletType: document.getElementById("walletType").value,
-    balance: Number(document.getElementById("walletBalance").value) || 0,
-    notes: document.getElementById("walletNotes").value
+
+    walletName:
+      document.getElementById(
+        "walletName"
+      ).value,
+
+    walletType:
+      document.getElementById(
+        "walletType"
+      ).value,
+
+    balance:
+      Number(
+        document.getElementById(
+          "walletBalance"
+        ).value
+      ) || 0,
+
+    notes:
+      document.getElementById(
+        "walletNotes"
+      ).value
+
   };
 
-  const updatedData = await apiRequest("addWallet", data);
+  const updatedData =
+    await apiRequest(
+      "addWallet",
+      data
+    );
+
   renderDashboard(updatedData);
 
   event.target.reset();
+
   closeModal("walletModal");
+
 }
+
+/* =========================================
+   BALANCE CORRECTION
+========================================= */
 
 async function submitBalanceCorrection(event) {
+
   event.preventDefault();
 
   const data = {
-    walletId: document.getElementById("adjustWallet").value,
-    actualBalance: Number(document.getElementById("adjustAmount").value),
-    reason: document.getElementById("adjustReason").value
+
+    walletId:
+      document.getElementById(
+        "adjustWallet"
+      ).value,
+
+    actualBalance:
+      Number(
+        document.getElementById(
+          "adjustAmount"
+        ).value
+      ),
+
+    reason:
+      document.getElementById(
+        "adjustReason"
+      ).value
+
   };
 
-  const updatedData = await apiRequest("adjustWalletBalance", data);
+  const updatedData =
+    await apiRequest(
+      "adjustWalletBalance",
+      data
+    );
+
   renderDashboard(updatedData);
 
   event.target.reset();
+
   closeModal("adjustWalletModal");
+
 }
 
+/* =========================================
+   ADD INVESTMENT
+========================================= */
+
+async function submitInvestment(event) {
+
+  event.preventDefault();
+
+  const data = {
+
+    date:
+      document.getElementById(
+        "investmentDate"
+      ).value,
+
+    platform:
+      document.getElementById(
+        "investmentPlatform"
+      ).value,
+
+    description:
+      document.getElementById(
+        "investmentDescription"
+      ).value,
+
+    amount:
+      Number(
+        document.getElementById(
+          "investmentAmount"
+        ).value
+      )
+
+  };
+
+  const updatedData =
+    await apiRequest(
+      "addInvestment",
+      data
+    );
+
+  renderDashboard(updatedData);
+
+  event.target.reset();
+
+  setDefaultDates();
+
+  closeModal("investmentModal");
+
+}
+
+/* =========================================
+   DELETE WALLET
+========================================= */
+
 async function deleteWallet(walletId) {
-  const confirmed = confirm("Delete this wallet?");
+
+  const confirmed =
+    confirm("Delete this wallet?");
+
   if (!confirmed) return;
 
-  const updatedData = await apiRequest("deleteWallet", { walletId });
+  const updatedData =
+    await apiRequest(
+      "deleteWallet",
+      { walletId }
+    );
+
   renderDashboard(updatedData);
+
 }
